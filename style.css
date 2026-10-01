@@ -13,7 +13,7 @@ html{scroll-behavior:smooth}
 body{
   font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--text);
   background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;
-  transition:background .6s,color .4s;overflow-x:hidden;
+  overflow-x:hidden;
 }
 #sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;transition:opacity .6s}
 main,.topbar{position:relative;z-index:2}
@@ -135,3 +135,36 @@ h1{font-size:clamp(34px,6vw,48px);margin:4px 0 8px;letter-spacing:-.5px}
 /* ---------- Chữ sở thích dễ đọc ở chế độ sáng ---------- */
 [data-theme="light"] .likes{color:#39436b}
 [data-theme="light"] .likes b{font-weight:800}
+
+/* ---------- Chuyển sáng/tối mượt ---------- */
+@property --bg{syntax:'<color>';inherits:true;initial-value:#070b1c}
+@property --bg2{syntax:'<color>';inherits:true;initial-value:#101a3d}
+@property --text{syntax:'<color>';inherits:true;initial-value:#eef2ff}
+@property --muted{syntax:'<color>';inherits:true;initial-value:#9aa6cf}
+@property --card{syntax:'<color>';inherits:true;initial-value:#121a3c}
+@property --line{syntax:'<color>';inherits:true;initial-value:#8c9fff}
+@property --accent{syntax:'<color>';inherits:true;initial-value:#00e5ff}
+.icon-btn.spin{animation:iconspin .8s cubic-bezier(.3,1.4,.5,1)}
+@keyframes iconspin{0%{transform:rotate(-200deg) scale(.4)}100%{transform:none}}
+
+@property --ttmain{syntax:'<color>';inherits:true;initial-value:#fff}
+@property --ca{syntax:'<color>';inherits:true;initial-value:#00e5ff}
+@property --cb{syntax:'<color>';inherits:true;initial-value:#ff2bd6}
+@property --cc{syntax:'<color>';inherits:true;initial-value:#ffd02b}
+html.ready{transition:--bg 1.2s ease,--bg2 1.2s ease,--text 1.2s ease,--muted 1.2s ease,--card 1.2s ease,--line 1.2s ease,--accent 1.2s ease,--ttmain 1.2s ease,--ca 1.2s ease,--cb 1.2s ease,--cc 1.2s ease}
+.likes,.likes b{transition:color 1.2s ease}
+.wave{position:fixed;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);border-radius:50%;pointer-events:none;z-index:12;
+  background:radial-gradient(circle,transparent 52%,var(--wc) 60%,transparent 68%);transform:scale(0);animation:wave 1.4s cubic-bezier(.3,.6,.3,1) forwards}
+@keyframes wave{0%{transform:scale(0);opacity:.95}100%{transform:scale(1);opacity:0}}
+
+/* ---------- Cuộn nguyên trang ---------- */
+.hero{min-height:100vh;min-height:100svh}
+.games{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:84px 6vw 48px}
+.section-head{margin-bottom:40px}
+.dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:14;display:flex;flex-direction:column;gap:14px}
+.dots button{width:10px;height:10px;padding:0;border-radius:50%;border:2px solid var(--muted);background:transparent;cursor:pointer;transition:all .5s cubic-bezier(.2,.8,.2,1)}
+.dots button.on{height:28px;border-radius:6px;background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--accent)}
+@media (pointer:coarse){
+  html{scroll-snap-type:y mandatory}
+  .hero,.games{scroll-snap-align:start}
+}

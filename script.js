@@ -141,7 +141,21 @@ onScroll();
 const root = document.documentElement;
 function setTheme(t) { root.dataset.theme = t; $("themeBtn").textContent = t === "dark" ? "🌙" : "☀️"; localStorage.setItem("theme", t); if (window.repaintLikes) window.repaintLikes(); }
 setTheme(localStorage.getItem("theme") || "dark");
-$("themeBtn").onclick = () => setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add("ready")));
+/* Đổi sáng/tối: màu chuyển dần, hai cảnh trộn mờ vào nhau, thêm một vòng sáng lan ra từ nút bấm (không dừng hiệu ứng nào) */
+$("themeBtn").onclick = (e) => {
+  const next = root.dataset.theme === "dark" ? "light" : "dark";
+  const btn = e.currentTarget;
+  btn.classList.remove("spin"); void btn.offsetWidth; btn.classList.add("spin");
+  const r = btn.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  const w = document.createElement("div");
+  w.className = "wave";
+  w.style.cssText = `--x:${x}px;--y:${y}px;--s:${(radius * 2) / 0.55}px;--wc:${next === "light" ? "rgba(255,214,120,.6)" : "rgba(120,150,255,.55)"}`;
+  document.body.appendChild(w);
+  w.onanimationend = () => w.remove();
+  setTheme(next);
+};
 
 /* ---------- Bầu trời sao + sao băng (chế độ tối) ---------- */
 const cv = $("sky"), ctx = cv.getContext("2d");
@@ -173,9 +187,8 @@ function drawCloud(c) {
   ctx.arc(c.x + b * 1.1, c.y, b * 0.5, 0, 6.28); ctx.arc(c.x + b * 0.55, c.y + b * 0.1, b * 0.55, 0, 6.28);
   ctx.fill();
 }
-function drawDay(t) {
-  ctx.clearRect(0, 0, W, H);
-  ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+function drawDay(t, k) {
+  ctx.shadowBlur = 0; ctx.globalAlpha = k;
   const sun = ctx.createRadialGradient(W * 0.85, 0, 0, W * 0.85, 0, W * 0.5);
   sun.addColorStop(0, "rgba(255,230,150,.55)"); sun.addColorStop(1, "rgba(255,230,150,0)");
   ctx.fillStyle = sun; ctx.fillRect(0, 0, W, H);
@@ -185,11 +198,11 @@ function drawDay(t) {
     p.x += Math.sin(t / 1000 + p.sw) * 0.6 + 0.35; p.y += p.vy; p.rot += p.vr;
     if (p.y > H + 20 || p.x > W + 20) petals[i] = newPetal(false);
     ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-    ctx.fillStyle = p.c; ctx.globalAlpha = 0.9;
+    ctx.fillStyle = p.c; ctx.globalAlpha = 0.9 * k;
     ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * 0.55, 0, 0, 6.28); ctx.fill();
     ctx.restore();
   }
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = k;
   if (t > nextPlane) { planes.push({ x: -60, y: H * (0.12 + Math.random() * 0.3), p: 0 }); nextPlane = t + 10000 + Math.random() * 10000; }
   planes = planes.filter((a) => a.x < W + 80);
   for (const a of planes) {
@@ -203,13 +216,10 @@ function drawDay(t) {
   }
 }
 addEventListener("resize", () => { resize(); initDay(); }); resize(); initDay();
-function frame(t) {
-  requestAnimationFrame(frame);
-  if (root.dataset.theme !== "dark") { drawDay(t); return; }
-  ctx.clearRect(0, 0, W, H);
+function drawNight(t, k) {
   for (const s of stars) {
     const a = 0.35 + 0.65 * Math.abs(Math.sin(t / 1000 * s.s + s.p));
-    ctx.globalAlpha = a; ctx.fillStyle = s.c;
+    ctx.globalAlpha = a * k; ctx.fillStyle = s.c;
     ctx.shadowBlur = s.r * 5; ctx.shadowColor = s.c;
     ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.28); ctx.fill();
   }
@@ -223,10 +233,87 @@ function frame(t) {
     const len = 14;
     const g = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * len, m.y - m.vy * len);
     g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(1, "rgba(120,160,255,0)");
-    ctx.globalAlpha = Math.max(m.life, 0); ctx.strokeStyle = g; ctx.lineWidth = 2.2; ctx.lineCap = "round";
+    ctx.globalAlpha = Math.max(m.life, 0) * k; ctx.strokeStyle = g; ctx.lineWidth = 2.2; ctx.lineCap = "round";
     ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(m.x - m.vx * len, m.y - m.vy * len); ctx.stroke();
     m.x += m.vx; m.y += m.vy; m.life -= 0.006;
   }
   ctx.globalAlpha = 1;
 }
+/* Hai cảnh (đêm / ngày) cùng chạy, chỉ trộn độ mờ → mọi hiệu ứng không bị dừng khi đổi chế độ */
+let mix = null, lastT = 0;
+function frame(t) {
+  requestAnimationFrame(frame);
+  const target = root.dataset.theme === "light" ? 1 : 0;
+  if (mix === null) mix = target;
+  const dt = Math.min(t - lastT, 50); lastT = t;
+  mix += Math.sign(target - mix) * Math.min(Math.abs(target - mix), dt / 1200);
+  const e = mix * mix * (3 - 2 * mix);
+  ctx.clearRect(0, 0, W, H);
+  if (e < 0.999) drawNight(t, 1 - e);
+  if (e > 0.001) drawDay(t, e);
+  ctx.globalAlpha = 1;
+}
 requestAnimationFrame(frame);
+
+
+/* ---------- Cuộn nguyên trang (full-page scroll) ---------- */
+(function fullPage() {
+  const sections = [...document.querySelectorAll("main > section")];
+  const topOf = (s) => s.getBoundingClientRect().top + scrollY;
+  const coarse = () => matchMedia("(pointer:coarse)").matches; // điện thoại: dùng scroll-snap của CSS
+  let animating = false, lock = 0;
+
+  function curIndex() {
+    const mid = scrollY + innerHeight / 2; let k = 0;
+    sections.forEach((s, i) => { if (topOf(s) <= mid) k = i; });
+    return k;
+  }
+  function animateTo(y, dur, done) {
+    const y0 = scrollY, d = y - y0, t0 = performance.now();
+    (function step(now) {
+      const p = Math.min((now - t0) / dur, 1);
+      const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; // easeInOutCubic
+      scrollTo({ top: y0 + d * e, behavior: "instant" });
+      p < 1 ? requestAnimationFrame(step) : done();
+    })(t0);
+  }
+  function goTo(i) {
+    i = Math.max(0, Math.min(sections.length - 1, i));
+    if (animating) return;
+    animating = true;
+    animateTo(topOf(sections[i]), 950, () => { animating = false; lock = performance.now() + 350; });
+  }
+
+  addEventListener("wheel", (e) => {
+    if (e.ctrlKey || coarse()) return;
+    if ($("modal").classList.contains("open")) { e.preventDefault(); return; }
+    const dir = Math.sign(e.deltaY); if (!dir) return;
+    const i = curIndex(), s = sections[i], top = topOf(s);
+    const inside = (dir > 0 && scrollY + innerHeight < top + s.offsetHeight - 4) || (dir < 0 && scrollY > top + 4);
+    if (inside && s.offsetHeight > innerHeight + 8 && !animating) return; // trang dài hơn màn hình: cuộn thường
+    e.preventDefault();
+    if (animating || performance.now() < lock || Math.abs(e.deltaY) < 4) return;
+    if (i + dir >= 0 && i + dir < sections.length) goTo(i + dir);
+  }, { passive: false });
+
+  addEventListener("keydown", (e) => {
+    if ($("modal").classList.contains("open") || e.target.closest("input,textarea")) return;
+    const k = e.key, i = curIndex();
+    if (k === " " && e.target.closest("button,a")) return;
+    if (k === "ArrowDown" || k === "PageDown" || (k === " " && !e.shiftKey)) { e.preventDefault(); goTo(i + 1); }
+    else if (k === "ArrowUp" || k === "PageUp" || (k === " " && e.shiftKey)) { e.preventDefault(); goTo(i - 1); }
+    else if (k === "Home") { e.preventDefault(); goTo(0); }
+    else if (k === "End") { e.preventDefault(); goTo(sections.length - 1); }
+  });
+
+  // Nút "Cuộn xuống" + chấm điều hướng bên phải
+  document.querySelector(".scroll-hint").onclick = (e) => { e.preventDefault(); goTo(1); };
+  const dots = sections.map((s, i) => {
+    const b = document.createElement("button");
+    b.setAttribute("aria-label", "Trang " + (i + 1));
+    b.onclick = () => goTo(i);
+    $("dots").appendChild(b); return b;
+  });
+  const sync = () => { const k = curIndex(); dots.forEach((b, i) => b.classList.toggle("on", i === k)); };
+  addEventListener("scroll", sync, { passive: true }); sync();
+})();
