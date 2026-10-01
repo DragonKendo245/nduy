@@ -60,20 +60,35 @@ const ICONS = {
 
 /* ---------- Mạng xã hội ---------- */
 let openSoc = null;
+const linkBox = $("linkBox");
+linkBox.innerHTML = '<div class="lb-in"></div>';
+const lbIn = linkBox.firstElementChild;
+function placeArrow(btn) { // mũi tên của hộp trượt tới đúng nút được bấm
+  const wrap = linkBox.parentElement, boxLeft = wrap.offsetWidth / 2 - linkBox.offsetWidth / 2;
+  const x = btn.offsetLeft + btn.offsetWidth / 2 - boxLeft;
+  linkBox.style.setProperty("--ax", Math.min(Math.max(x, 22), linkBox.offsetWidth - 22) + "px");
+}
+function closeLink() {
+  linkBox.classList.remove("open"); openSoc = null;
+  document.querySelectorAll(".soc").forEach((x) => x.classList.remove("active"));
+}
 CONFIG.socials.forEach((s) => {
   const btn = document.createElement("button");
   btn.className = "soc"; btn.innerHTML = ICONS[s.icon] || s.icon; btn.title = s.name;
   btn.style.setProperty("--c", s.color);
   btn.onclick = () => {
-    const box = $("linkBox");
-    if (openSoc === s) { box.classList.remove("open"); btn.classList.remove("active"); openSoc = null; return; }
+    if (openSoc === s) { closeLink(); return; }
     document.querySelectorAll(".soc").forEach((x) => x.classList.remove("active"));
-    btn.classList.add("active"); openSoc = s;
-    box.innerHTML = `<small>${s.name} của mình</small><a href="${s.url}" target="_blank" rel="noopener">${s.url}</a>`;
-    box.classList.add("open");
+    btn.classList.add("active");
+    const fill = () => { lbIn.innerHTML = `<small>${s.name} của mình</small><a href="${s.url}" target="_blank" rel="noopener">${s.url}</a>`; };
+    placeArrow(btn);
+    if (!openSoc) { fill(); linkBox.classList.add("open"); }
+    else { lbIn.classList.add("out"); setTimeout(() => { fill(); lbIn.classList.remove("out"); }, 160); } // đổi nội dung có chuyển mờ
+    openSoc = s;
   };
   $("socials").appendChild(btn);
 });
+document.addEventListener("click", (e) => { if (openSoc && !e.target.closest(".soc-wrap")) closeLink(); });
 
 /* ---------- Thông báo ---------- */
 CONFIG.notifications.forEach((n) => {

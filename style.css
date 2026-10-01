@@ -46,11 +46,6 @@ h1{font-size:clamp(34px,6vw,48px);margin:4px 0 8px;letter-spacing:-.5px}
 .socials{display:flex;gap:16px;justify-content:center;margin-top:24px}
 .soc{width:66px;height:66px;border-radius:18px;border:1px solid var(--line);background:var(--card);backdrop-filter:blur(8px);font-size:28px;font-weight:800;cursor:pointer;transition:.3s;color:var(--c)}
 .soc:hover,.soc.active{transform:translateY(-5px);box-shadow:0 0 22px var(--c);border-color:var(--c)}
-.link-box{margin:16px auto 0;max-width:360px;max-height:0;opacity:0;overflow:hidden;transition:.4s;border-radius:14px;background:var(--card);border:1px solid var(--line)}
-.link-box.open{max-height:110px;opacity:1;padding:12px 16px}
-.link-box small{display:block;color:var(--muted);margin-bottom:4px}
-.link-box a{color:var(--accent);word-break:break-all;text-decoration:none;font-weight:600}
-.link-box a:hover{text-decoration:underline}
 .scroll-hint{position:absolute;bottom:26px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:13px}
 .scroll-hint i{width:22px;height:34px;border:2px solid var(--muted);border-radius:12px;position:relative}
 .scroll-hint i::after{content:"";position:absolute;left:50%;top:6px;width:4px;height:7px;margin-left:-2px;border-radius:2px;background:var(--accent);animation:wheel 1.6s infinite}
@@ -283,3 +278,20 @@ html.quick .profile > :nth-child(3){transition-delay:.25s}html.quick .profile > 
 html.quick .profile > :nth-child(5){transition-delay:.45s}
 html.quick .player{transition:transform .4s,box-shadow .6s,opacity 1s ease .6s}
 html.quick .scroll-hint{transition:opacity 1s ease .7s}
+
+/* ---------- Hộp link mạng xã hội: nổi lên dưới nút, không làm xê dịch bố cục ---------- */
+.soc-wrap{position:relative;width:max-content;max-width:100%;margin:24px auto 0}
+.socials{margin-top:0}
+.link-box{position:absolute;z-index:6;left:50%;top:calc(100% + 16px);width:min(330px,86vw);padding:12px 16px;text-align:center;border-radius:16px;
+  background:color-mix(in srgb,var(--bg2) 90%,transparent);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow);
+  opacity:0;visibility:hidden;filter:blur(4px);transform:translate(-50%,-10px) scale(.92);transform-origin:var(--ax,50%) 0;
+  transition:opacity .35s ease,transform .5s cubic-bezier(.2,.9,.3,1.2),filter .35s ease,visibility 0s .5s}
+.link-box.open{opacity:1;visibility:visible;filter:none;transform:translate(-50%,0) scale(1);transition-delay:0s}
+.link-box::before{content:"";position:absolute;top:-8px;left:var(--ax,50%);width:16px;height:8px;margin-left:-8px;
+  background:color-mix(in srgb,var(--bg2) 90%,transparent);clip-path:polygon(50% 0,0 100%,100% 100%);transition:left .5s cubic-bezier(.2,.9,.3,1)}
+.lb-in{transition:opacity .16s ease,transform .16s ease}
+.lb-in.out{opacity:0;transform:translateY(5px)}
+.link-box small{display:block;margin-bottom:4px;color:var(--muted)}
+.link-box a{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent);text-decoration:none;font-weight:600}
+.link-box a:hover{text-decoration:underline}
+.hero:has(.link-box.open) .scroll-hint{opacity:0;transition:opacity .3s ease}
