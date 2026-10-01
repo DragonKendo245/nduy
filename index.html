@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trang cá nhân</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="sky"></canvas>
+  <div id="progress"></div>
+
+  <header class="topbar">
+    <div class="notif">
+      <button id="bellBtn" class="icon-btn" aria-label="Thông báo">🔔<span class="dot" id="bellDot"></span></button>
+      <div id="notifPanel" class="panel"><h4>Thông báo</h4><ul id="notifList"></ul></div>
+    </div>
+    <button id="themeBtn" class="icon-btn" aria-label="Đổi giao diện sáng/tối">🌙</button>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="profile" id="profile">
+        <div class="avatar-wrap">
+          <div class="orbit o1"></div><div class="orbit o2"></div>
+          <div class="comet c1"></div><div class="comet c2"></div>
+          <img id="avatar" class="avatar" alt="Ảnh đại diện">
+        </div>
+        <p id="bio" class="bio"></p>
+        <h1 id="name"></h1>
+        <p class="likes">I like <span id="likes"></span></p>
+        <div class="socials" id="socials"></div>
+        <div class="link-box" id="linkBox"></div>
+      </div>
+      <a href="#games" class="scroll-hint" aria-label="Cuộn xuống xem game"><span>Cuộn xuống</span><i></i></a>
+    </section>
+
+    <section class="games" id="games">
+      <div class="section-head reveal">
+        <h2>Chơi cùng mình nhé 🎮</h2>
+        <p>Bấm vào một tựa game để xem ID và kết bạn với mình.</p>
+      </div>
+      <div class="grid" id="gameGrid"></div>
+    </section>
+  </main>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card" id="modalCard">
+      <button class="close" id="modalClose" aria-label="Đóng">✕</button>
+      <div class="modal-icon" id="modalIcon"></div>
+      <h3 id="modalName"></h3>
+      <p class="muted">ID trong game</p>
+      <code id="modalId"></code>
+      <button class="copy" id="copyBtn">Sao chép ID</button>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

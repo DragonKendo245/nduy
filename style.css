@@ -1,0 +1,137 @@
+:root{
+  --bg:#070b1c; --bg2:#101a3d; --text:#eef2ff; --muted:#9aa6cf;
+  --card:rgba(18,26,60,.62); --line:rgba(140,160,255,.18); --accent:#00e5ff;
+  --shadow:0 10px 40px rgba(0,0,0,.45);
+}
+[data-theme="light"]{
+  --bg:#eaf3ff; --bg2:#fdf1f7; --text:#1b2447; --muted:#5b668f;
+  --card:rgba(255,255,255,.72); --line:rgba(80,100,200,.18); --accent:#6c5cff;
+  --shadow:0 10px 30px rgba(80,100,200,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--text);
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;
+  transition:background .6s,color .4s;overflow-x:hidden;
+}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;transition:opacity .6s}
+main,.topbar{position:relative;z-index:2}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:20;background:linear-gradient(90deg,#00e5ff,#7a5cff,#ff2bd6);box-shadow:0 0 10px #7a5cff}
+
+/* Topbar */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:15;display:flex;justify-content:space-between;align-items:flex-start;padding:14px 22px}
+.icon-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);backdrop-filter:blur(10px);color:var(--text);font-size:19px;cursor:pointer;position:relative;transition:transform .25s,box-shadow .25s}
+.icon-btn:hover{transform:scale(1.1);box-shadow:0 0 18px var(--accent)}
+.dot{position:absolute;top:8px;right:9px;width:9px;height:9px;border-radius:50%;background:#ff3b6b;box-shadow:0 0 8px #ff3b6b}
+.dot.hide{display:none}
+.notif{position:relative}
+.panel{position:absolute;top:54px;left:0;width:min(320px,86vw);padding:16px;border-radius:16px;background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--line);box-shadow:var(--shadow);
+  opacity:0;transform:translateY(-10px) scale(.97);pointer-events:none;transition:.3s cubic-bezier(.2,.8,.2,1)}
+.panel.open{opacity:1;transform:none;pointer-events:auto}
+.panel h4{margin-bottom:10px}
+.panel li{list-style:none;padding:10px 12px;margin-bottom:8px;border-radius:10px;background:rgba(127,140,255,.12);font-size:14px}
+.panel li b{display:block;margin-bottom:2px}
+.panel li span,.muted{color:var(--muted)}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:90px 20px 70px;position:relative}
+.profile{text-align:center;will-change:transform,opacity}
+.avatar-wrap{position:relative;width:170px;height:170px;margin:0 auto 18px}
+.avatar{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;border:5px solid var(--bg);background:var(--bg2)}
+.bio{color:var(--muted);font-size:15px}
+h1{font-size:clamp(34px,6vw,48px);margin:4px 0 8px;letter-spacing:-.5px}
+.likes{color:var(--muted);font-size:17px}
+.likes b{font-weight:700;margin-left:4px;animation:flicker 4s infinite}
+.socials{display:flex;gap:16px;justify-content:center;margin-top:24px}
+.soc{width:66px;height:66px;border-radius:18px;border:1px solid var(--line);background:var(--card);backdrop-filter:blur(8px);font-size:28px;font-weight:800;cursor:pointer;transition:.3s;color:var(--c)}
+.soc:hover,.soc.active{transform:translateY(-5px);box-shadow:0 0 22px var(--c);border-color:var(--c)}
+.link-box{margin:16px auto 0;max-width:360px;max-height:0;opacity:0;overflow:hidden;transition:.4s;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.link-box.open{max-height:110px;opacity:1;padding:12px 16px}
+.link-box small{display:block;color:var(--muted);margin-bottom:4px}
+.link-box a{color:var(--accent);word-break:break-all;text-decoration:none;font-weight:600}
+.link-box a:hover{text-decoration:underline}
+.scroll-hint{position:absolute;bottom:26px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:13px}
+.scroll-hint i{width:22px;height:34px;border:2px solid var(--muted);border-radius:12px;position:relative}
+.scroll-hint i::after{content:"";position:absolute;left:50%;top:6px;width:4px;height:7px;margin-left:-2px;border-radius:2px;background:var(--accent);animation:wheel 1.6s infinite}
+
+/* Games */
+.games{padding:110px 6vw 140px;max-width:1300px;margin:0 auto}
+.section-head{text-align:center;margin-bottom:56px}
+.section-head h2{font-size:clamp(28px,4.5vw,42px)}
+.section-head p{color:var(--muted);margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px}
+.card{--c1:#fff;--c2:#fff;height:300px;border-radius:24px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;cursor:pointer;color:var(--text);
+  border:1px solid var(--line);background:linear-gradient(160deg,color-mix(in srgb,var(--c1) 30%,transparent),var(--card) 70%);backdrop-filter:blur(10px);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s,border-color .45s}
+.card:hover{transform:translateY(-12px) rotate(-.6deg);border-color:var(--c1);box-shadow:0 20px 50px color-mix(in srgb,var(--c1) 45%,transparent)}
+.card .ic{font-size:76px;filter:drop-shadow(0 0 18px var(--c2));transition:transform .45s}
+.card:hover .ic{transform:scale(1.15) rotate(8deg)}
+.card h3{font-size:20px}.card p{font-size:13px;color:var(--muted);margin-top:3px}
+
+/* Reveal khi cuộn */
+.reveal{opacity:0;transform:translateY(60px) scale(.96);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.reveal.show{opacity:1;transform:none}
+
+/* Modal */
+.modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(3,6,20,.6);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:.3s}
+.modal.open{opacity:1;pointer-events:auto}
+.modal-card{position:relative;width:min(380px,90vw);padding:34px 28px;text-align:center;border-radius:26px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);transform:scale(.85);transition:.4s cubic-bezier(.2,1.2,.3,1)}
+.modal.open .modal-card{transform:none}
+.modal-icon{font-size:64px}
+.modal-card h3{margin:6px 0 14px}
+.modal-card code{display:block;margin:8px 0 18px;padding:14px;border-radius:12px;font-size:20px;font-weight:700;letter-spacing:1px;background:rgba(127,140,255,.15);border:1px dashed var(--line);user-select:all;word-break:break-all}
+.copy{padding:12px 26px;border:0;border-radius:999px;font-weight:700;font-size:15px;color:#fff;cursor:pointer;background:linear-gradient(90deg,#00b4ff,#7a5cff);transition:.25s}
+.copy:hover{transform:scale(1.05);box-shadow:0 0 20px #7a5cff}
+.close{position:absolute;top:12px;right:14px;border:0;background:none;color:var(--muted);font-size:18px;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:36px;z-index:40;padding:12px 22px;border-radius:999px;background:#2bffb0;color:#04210f;font-weight:700;transform:translate(-50%,30px);opacity:0;transition:.35s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes wheel{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(12px)}}
+@keyframes flicker{0%,92%,100%{opacity:1}94%{opacity:.6}96%{opacity:1}98%{opacity:.7}}
+
+
+/* ---------- Avatar tròn + quỹ đạo & sao chổi ---------- */
+:root{--ca:#00e5ff;--cb:#ff2bd6;--cc:#ffd02b}
+[data-theme="light"]{--ca:#6c5cff;--cb:#ff5fa2;--cc:#ff9f43}
+.avatar-wrap{margin-bottom:36px}
+.avatar{border:4px solid var(--bg);box-shadow:0 0 0 2px color-mix(in srgb,var(--ca) 55%,transparent),0 0 24px color-mix(in srgb,var(--ca) 35%,transparent)}
+.orbit,.comet{position:absolute;border-radius:50%;pointer-events:none}
+.orbit{border:2px solid transparent}
+.o1{inset:-12px;border-top-color:var(--ca);border-bottom-color:var(--cb);filter:drop-shadow(0 0 6px var(--ca));animation:spin 7s linear infinite}
+.o2{inset:-22px;border-left-color:var(--cc);border-right-color:var(--cb);opacity:.85;animation:spin 11s linear infinite reverse}
+.comet::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--tail);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px))}
+.comet::after{content:"";position:absolute;top:-3px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#fff;box-shadow:0 0 10px 3px var(--hc)}
+.c1{inset:-33px;--hc:var(--ca);--tail:conic-gradient(from 0deg,transparent 0 76%,var(--ca) 100%);animation:spin 4.5s linear infinite}
+.c2{inset:-44px;--hc:var(--cb);--tail:conic-gradient(from 0deg,var(--cb) 0,transparent 24%,transparent 100%);animation:spin 6.5s linear infinite reverse}
+
+/* ---------- Gõ chữ sở thích ---------- */
+.likes{min-height:1.7em}
+.likes b{animation:none}
+.caret{display:inline-block;width:2px;height:1.05em;margin-left:3px;vertical-align:text-bottom;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* ---------- Ảnh game 1:1 ---------- */
+.card{height:auto;justify-content:flex-start;gap:18px;padding:16px}
+.gimg{width:100%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;display:grid;place-items:center;font-size:84px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c1) 38%,transparent),color-mix(in srgb,var(--c2) 26%,transparent))}
+.gimg img,.mimg img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.card:hover .gimg img{transform:scale(1.08)}
+.card > div:last-child{padding:0 6px 6px}
+.mimg{width:110px;height:110px;margin:0 auto;border-radius:24px;overflow:hidden;display:grid;place-items:center;font-size:60px;box-shadow:0 0 24px rgba(127,140,255,.35)}
+
+/* ---------- Logo mạng xã hội ---------- */
+:root{--ttmain:#fff}
+[data-theme="light"]{--ttmain:#111}
+.tt-main{fill:var(--ttmain)}
+.soc{display:grid;place-items:center}
+.soc svg{width:34px;height:34px;display:block;transition:transform .3s}
+.soc:hover svg{transform:scale(1.12)}
+
+/* ---------- Chữ sở thích dễ đọc ở chế độ sáng ---------- */
+[data-theme="light"] .likes{color:#39436b}
+[data-theme="light"] .likes b{font-weight:800}
