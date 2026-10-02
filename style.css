@@ -295,3 +295,24 @@ html.quick .scroll-hint{transition:opacity 1s ease .7s}
 .link-box a{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent);text-decoration:none;font-weight:600}
 .link-box a:hover{text-decoration:underline}
 .hero:has(.link-box.open) .scroll-hint{opacity:0;transition:opacity .3s ease}
+
+/* ---------- Chế độ nhẹ (điện thoại / máy yếu): bỏ các hiệu ứng nặng, giữ nguyên giao diện ---------- */
+html.lite *,html.lite *::before,html.lite *::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.lite[data-theme="dark"]{--card:rgba(16,24,56,.93);--shadow:0 6px 18px rgba(0,0,0,.35)}
+html.lite[data-theme="light"]{--card:rgba(255,255,255,.95);--shadow:0 6px 18px rgba(80,100,200,.16)}
+html.lite body{background-attachment:scroll}
+html.lite .comet{display:none}
+html.lite .o1{filter:none}
+html.lite .player::before{animation:none!important;opacity:.5}
+html.lite .player.playing::before{opacity:.9}
+html.lite .player.playing{box-shadow:var(--shadow)}
+html.lite .link-box{filter:none;background:var(--bg2)}
+html.lite .g-name{animation:none}
+html.lite .g-text{filter:none!important}
+html.lite .veil{background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-mask-image:none;mask-image:none;transition:opacity .8s ease .2s}
+html.lite .gate.opening .veil{opacity:0}
+html.lite .g-ring,html.lite .wave{display:none}
+html.lite.ready{transition:none}
+
+/* Hộp link luôn nổi trên thẻ nhạc (nhất là trên điện thoại, nơi thẻ nhạc nằm ngay dưới các nút) */
+.profile{position:relative;z-index:7}

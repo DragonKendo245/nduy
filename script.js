@@ -173,11 +173,27 @@ $("themeBtn").onclick = (e) => {
 };
 
 /* ---------- Bầu trời sao + sao băng (chế độ tối) ---------- */
+/* ---------- Tự chọn mức hiệu ứng: điện thoại / máy yếu dùng "chế độ nhẹ" cho đỡ nóng máy, máy tính dùng đầy đủ ---------- */
+const PERF = new URLSearchParams(location.search).get("perf") || CONFIG.performance || "auto"; // "auto" | "low" | "high" (thử: thêm ?perf=low vào link)
+let LITE = false;
+{
+  let saved = null; try { saved = sessionStorage.getItem("perf"); } catch {}
+  const phone = matchMedia("(pointer:coarse)").matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  const saveData = !!(navigator.connection && navigator.connection.saveData);
+  LITE = PERF === "low" ? true : PERF === "high" ? false : phone || saveData || saved === "lite";
+  document.documentElement.classList.toggle("lite", LITE);
+}
+function setLite(on, auto) {
+  LITE = on; document.documentElement.classList.toggle("lite", on);
+  if (auto) { try { sessionStorage.setItem("perf", "lite"); } catch {} }
+  resize(); initDay(); buildNight();
+}
+
 const cv = $("sky"), ctx = cv.getContext("2d");
 let W, H, stars = [], shooters = [], nextShoot = 0;
 function resize() {
   W = cv.width = innerWidth; H = cv.height = innerHeight;
-  stars = Array.from({ length: Math.floor((W * H) / 5500) }, () => ({
+  stars = Array.from({ length: Math.floor((W * H) / (LITE ? 11000 : 5500)) }, () => ({
     x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.5 + 0.3,
     s: Math.random() * 2 + 0.5, z: Math.random() * 0.8 + 0.2, p: Math.random() * 6.28,
     c: ["#ffffff", "#bcd2ff", "#ffe9b8"][Math.floor(Math.random() * 3)],
@@ -242,11 +258,11 @@ function buildNight() {
 }
 function drawBackdrop(t, k) {
   // Tinh vân + cực quang gộp chung 1 lớp ở nửa độ phân giải, rồi phóng lên 1 lần → mềm và nhẹ máy
-  const hw = aur.width, hh = aur.height, step = W < 700 ? 6 : 5, breath = 0.78 + 0.22 * Math.sin(t / 4000);
+  const hw = aur.width, hh = aur.height, step = LITE ? 4 : (W < 700 ? 6 : 5), breath = 0.78 + 0.22 * Math.sin(t / 4000);
   actx.globalCompositeOperation = "source-over"; actx.clearRect(0, 0, hw, hh);
   actx.globalAlpha = 0.9; actx.drawImage(nebula, 0, 0, hw, hh);
   actx.globalCompositeOperation = "lighter";
-  for (const r of RIBBONS) {
+  for (const r of (LITE ? RIBBONS.slice(0, 2) : RIBBONS)) {
     const strip = strips[r.s];
     for (let x = 0; x < hw; x += step) {
       const u = x / hw, edge = Math.pow(Math.sin(Math.PI * u), 0.6);
@@ -275,8 +291,8 @@ function newPetal(anywhere) {
     sw: Math.random() * 6.28, rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.04, c: PETAL_COLORS[Math.floor(Math.random() * 4)] };
 }
 function initDay() {
-  clouds = Array.from({ length: 6 }, () => ({ x: Math.random() * W, y: 50 + Math.random() * H * 0.55, s: 0.6 + Math.random() * 1.1, v: 0.15 + Math.random() * 0.25 }));
-  petals = Array.from({ length: Math.max(14, Math.floor(W / 60)) }, () => newPetal(true));
+  clouds = Array.from({ length: LITE ? 4 : 6 }, () => ({ x: Math.random() * W, y: 50 + Math.random() * H * 0.55, s: 0.6 + Math.random() * 1.1, v: 0.15 + Math.random() * 0.25 }));
+  petals = Array.from({ length: LITE ? 7 : Math.max(14, Math.floor(W / 60)) }, () => newPetal(true));
 }
 function drawCloud(c) {
   const b = 60 * c.s;
@@ -299,8 +315,9 @@ function drawSun(t, k) {
   const rg = ctx.createRadialGradient(0, 0, R * 1.1, 0, 0, R * 10);
   rg.addColorStop(0, `rgba(255,228,130,${0.22 * pulse})`); rg.addColorStop(1, "rgba(255,228,130,0)");
   ctx.fillStyle = rg;
-  for (let i = 0; i < 16; i++) {
-    const a = (i / 16) * 6.283, w = i % 2 ? 0.045 : 0.028, L = R * (i % 2 ? 6 : 9.5);
+  const N = LITE ? 8 : 16;
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * 6.283, w = i % 2 ? 0.045 : 0.028, L = R * (i % 2 ? 6 : 9.5);
     ctx.beginPath(); ctx.moveTo(0, 0);
     ctx.lineTo(Math.cos(a - w) * L, Math.sin(a - w) * L); ctx.lineTo(Math.cos(a + w) * L, Math.sin(a + w) * L);
     ctx.closePath(); ctx.fill();
@@ -310,7 +327,7 @@ function drawSun(t, k) {
   ctx.drawImage(sunImg.img, sx - sunImg.S / 2, sy - sunImg.S / 2);
   // vệt lóa nhỏ chạy từ mặt trời về giữa màn hình
   const dx = W / 2 - sx, dy = H / 2 - sy;
-  for (const [f, r, c, a] of [[0.3, 16, "255,200,120", 0.16], [0.5, 28, "255,150,190", 0.12], [0.72, 12, "150,200,255", 0.18], [0.9, 38, "255,230,150", 0.1]]) {
+  if (!LITE) for (const [f, r, c, a] of [[0.3, 16, "255,200,120", 0.16], [0.5, 28, "255,150,190", 0.12], [0.72, 12, "150,200,255", 0.18], [0.9, 38, "255,230,150", 0.1]]) {
     const fx = sx + dx * f, fy = sy + dy * f, fg = ctx.createRadialGradient(fx, fy, 0, fx, fy, r * 1.6);
     fg.addColorStop(0, `rgba(${c},${a * 1.5})`); fg.addColorStop(0.6, `rgba(${c},${a * 0.6})`); fg.addColorStop(1, `rgba(${c},0)`);
     ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(fx, fy, r * 1.6, 0, 6.28); ctx.fill();
@@ -321,10 +338,10 @@ function drawSun(t, k) {
 function drawDay(t, k) {
   ctx.shadowBlur = 0; ctx.globalAlpha = k;
   drawSun(t, k);
-  for (const c of clouds) { c.x += c.v; if (c.x > W + 150) c.x = -c.s * 150; drawCloud(c); }
+  for (const c of clouds) { c.x += c.v * FS; if (c.x > W + 150) c.x = -c.s * 150; drawCloud(c); }
   for (let i = 0; i < petals.length; i++) {
     const p = petals[i];
-    p.x += Math.sin(t / 1000 + p.sw) * 0.6 + 0.35; p.y += p.vy; p.rot += p.vr;
+    p.x += (Math.sin(t / 1000 + p.sw) * 0.6 + 0.35) * FS; p.y += p.vy * FS; p.rot += p.vr * FS;
     if (p.y > H + 20 || p.x > W + 20) petals[i] = newPetal(false);
     ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
     ctx.fillStyle = p.c; ctx.globalAlpha = 0.9 * k;
@@ -335,9 +352,9 @@ function drawDay(t, k) {
   if (t > nextPlane) { planes.push({ x: -60, y: H * (0.12 + Math.random() * 0.3), p: 0 }); nextPlane = t + 10000 + Math.random() * 10000; }
   planes = planes.filter((a) => a.x < W + 80);
   for (const a of planes) {
-    a.x += 2.2; a.p += 0.03;
+    a.x += 2.2 * FS; a.p += 0.03 * FS;
     ctx.save(); ctx.translate(a.x, a.y + Math.sin(a.p * 2) * 18); ctx.rotate(Math.sin(a.p * 2) * 0.12);
-    ctx.fillStyle = "#fff"; ctx.shadowColor = "rgba(80,100,200,.35)"; ctx.shadowBlur = 8;
+    ctx.fillStyle = "#fff"; if (!LITE) { ctx.shadowColor = "rgba(80,100,200,.35)"; ctx.shadowBlur = 8; }
     ctx.beginPath(); ctx.moveTo(30, 0); ctx.lineTo(-26, -13); ctx.lineTo(-14, 0); ctx.lineTo(-26, 13); ctx.closePath(); ctx.fill();
     ctx.shadowBlur = 0; ctx.fillStyle = "#cfd8f5";
     ctx.beginPath(); ctx.moveTo(30, 0); ctx.lineTo(-14, 0); ctx.lineTo(-26, 13); ctx.closePath(); ctx.fill();
@@ -350,8 +367,10 @@ function drawNight(t, k) {
   for (const s of stars) {
     const a = 0.35 + 0.65 * Math.abs(Math.sin(t / 1000 * s.s + s.p));
     ctx.globalAlpha = a * k; ctx.fillStyle = s.c;
+    const px = s.x + par.x * s.z, py = s.y + par.y * s.z;
+    if (LITE) { ctx.fillRect(px - s.r, py - s.r, s.r * 2, s.r * 2); continue; } // bỏ quầng sáng của từng sao (rất tốn)
     ctx.shadowBlur = s.r * 5; ctx.shadowColor = s.c;
-    ctx.beginPath(); ctx.arc(s.x + par.x * s.z, s.y + par.y * s.z, s.r, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, s.r, 0, 6.28); ctx.fill();
   }
   ctx.shadowBlur = 0;
   if (t > nextShoot) {
@@ -365,17 +384,23 @@ function drawNight(t, k) {
     g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(1, "rgba(120,160,255,0)");
     ctx.globalAlpha = Math.max(m.life, 0) * k; ctx.strokeStyle = g; ctx.lineWidth = 2.2; ctx.lineCap = "round";
     ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(m.x - m.vx * len, m.y - m.vy * len); ctx.stroke();
-    m.x += m.vx; m.y += m.vy; m.life -= 0.006;
+    m.x += m.vx * FS; m.y += m.vy * FS; m.life -= 0.006 * FS;
   }
   ctx.globalAlpha = 1;
 }
 /* Hai cảnh (đêm / ngày) cùng chạy, chỉ trộn độ mờ → mọi hiệu ứng không bị dừng khi đổi chế độ */
-let mix = null, lastT = 0;
+let mix = null, lastT = 0, FS = 1, fpsAcc = 0, fpsN = 0, lowWin = 0;
 function frame(t) {
   requestAnimationFrame(frame);
+  if (LITE && t - lastT < 30) return; // chế độ nhẹ: 30 khung hình/giây cho đỡ nóng máy
   const target = root.dataset.theme === "light" ? 1 : 0;
   if (mix === null) mix = target;
-  const dt = Math.min(t - lastT, 50); lastT = t;
+  const raw = t - lastT, dt = Math.min(raw, 50); lastT = t; FS = dt / 16.667;
+  // Máy tính mà vẫn giật (dưới ~38 khung/giây suốt ~4 giây) thì tự chuyển sang chế độ nhẹ
+  if (PERF === "auto" && !LITE && raw < 250 && !document.getElementById("gate") && Math.abs(target - mix) < 0.01) {
+    fpsAcc += raw; fpsN++;
+    if (fpsAcc >= 2000) { lowWin = fpsN / (fpsAcc / 1000) < 38 ? lowWin + 1 : 0; fpsAcc = fpsN = 0; if (lowWin >= 2) setLite(true, true); }
+  } else { fpsAcc = fpsN = 0; }
   mix += Math.sign(target - mix) * Math.min(Math.abs(target - mix), dt / 1200);
   const e = mix * mix * (3 - 2 * mix);
   sm.x += (mouse.x - sm.x) * 0.05; sm.y += (mouse.y - sm.y) * 0.05;
@@ -526,7 +551,7 @@ requestAnimationFrame(frame);
   // Chùm tia sáng bắn ra từ chỗ ảnh đại diện
   function burst() {
     const cols = ["var(--ca)", "var(--cb)", "var(--cc)", "#fff"], reach = Math.min(innerWidth, innerHeight) * 0.5;
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < (LITE ? 10 : 40); i++) {
       const a = Math.random() * Math.PI * 2, d = 140 + Math.random() * reach, el = document.createElement("i");
       el.style.cssText = `--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d}px;--sz:${3 + Math.random() * 5}px;--pc:${cols[i % 4]};--du:${0.9 + Math.random() * 0.9}s;--dl:${0.15 + Math.random() * 0.25}s`;
       $("gBurst").appendChild(el);
