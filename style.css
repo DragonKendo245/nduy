@@ -279,22 +279,9 @@ html.quick .profile > :nth-child(5){transition-delay:.45s}
 html.quick .player{transition:transform .4s,box-shadow .6s,opacity 1s ease .6s}
 html.quick .scroll-hint{transition:opacity 1s ease .7s}
 
-/* ---------- Hộp link mạng xã hội: nổi lên dưới nút, không làm xê dịch bố cục ---------- */
+/* ---------- Nút mạng xã hội ---------- */
 .soc-wrap{position:relative;width:max-content;max-width:100%;margin:24px auto 0}
 .socials{margin-top:0}
-.link-box{position:absolute;z-index:6;left:50%;top:calc(100% + 16px);width:min(330px,86vw);padding:12px 16px;text-align:center;border-radius:16px;
-  background:color-mix(in srgb,var(--bg2) 90%,transparent);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow);
-  opacity:0;visibility:hidden;filter:blur(4px);transform:translate(-50%,-10px) scale(.92);transform-origin:var(--ax,50%) 0;
-  transition:opacity .35s ease,transform .5s cubic-bezier(.2,.9,.3,1.2),filter .35s ease,visibility 0s .5s}
-.link-box.open{opacity:1;visibility:visible;filter:none;transform:translate(-50%,0) scale(1);transition-delay:0s}
-.link-box::before{content:"";position:absolute;top:-8px;left:var(--ax,50%);width:16px;height:8px;margin-left:-8px;
-  background:color-mix(in srgb,var(--bg2) 90%,transparent);clip-path:polygon(50% 0,0 100%,100% 100%);transition:left .5s cubic-bezier(.2,.9,.3,1)}
-.lb-in{transition:opacity .16s ease,transform .16s ease}
-.lb-in.out{opacity:0;transform:translateY(5px)}
-.link-box small{display:block;margin-bottom:4px;color:var(--muted)}
-.link-box a{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent);text-decoration:none;font-weight:600}
-.link-box a:hover{text-decoration:underline}
-.hero:has(.link-box.open) .scroll-hint{opacity:0;transition:opacity .3s ease}
 
 /* ---------- Chế độ nhẹ (điện thoại / máy yếu): bỏ các hiệu ứng nặng, giữ nguyên giao diện ---------- */
 html.lite *,html.lite *::before,html.lite *::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -306,8 +293,7 @@ html.lite .o1{filter:none}
 html.lite .player::before{animation:none!important;opacity:.5}
 html.lite .player.playing::before{opacity:.9}
 html.lite .player.playing{box-shadow:var(--shadow)}
-html.lite .link-box{filter:none;background:var(--bg2)}
-html.lite .g-name{animation:none}
+html.lite html.lite .g-name{animation:none}
 html.lite .g-text{filter:none!important}
 html.lite .veil{background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-mask-image:none;mask-image:none;transition:opacity .8s ease .2s}
 html.lite .gate.opening .veil{opacity:0}
@@ -316,3 +302,6 @@ html.lite.ready{transition:none}
 
 /* Hộp link luôn nổi trên thẻ nhạc (nhất là trên điện thoại, nơi thẻ nhạc nằm ngay dưới các nút) */
 .profile{position:relative;z-index:7}
+
+.soc{text-decoration:none}
+.soc:focus-visible{outline:2px solid var(--c);outline-offset:3px}
