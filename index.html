@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="dark">
+<html lang="vi" data-theme="dark" class="gate-open">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,6 +7,23 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="gate" id="gate" role="dialog" aria-label="Chào mừng">
+    <div class="veil"></div>
+    <div class="g-ring"></div>
+    <div class="g-burst" id="gBurst"></div>
+    <div class="gate-card">
+      <div class="g-avw"><img class="g-av" id="gAvatar" alt=""></div>
+      <div class="g-text">
+        <p class="g-hi" id="gHi"></p>
+        <h2 class="g-name" id="gName"></h2>
+        <p class="g-sub" id="gSub"></p>
+        <div class="g-btns">
+          <button class="g-main" id="gMusic"></button>
+          <button class="g-ghost" id="gSilent"></button>
+        </div>
+      </div>
+    </div>
+  </div>
   <canvas id="sky"></canvas>
   <div id="progress"></div>
 
@@ -29,8 +46,25 @@
         <p id="bio" class="bio"></p>
         <h1 id="name"></h1>
         <p class="likes">I like <span id="likes"></span></p>
-        <div class="socials" id="socials"></div>
-        <div class="link-box" id="linkBox"></div>
+        <div class="soc-wrap">
+          <div class="socials" id="socials"></div>
+        </div>
+      </div>
+
+      <div class="player" id="player">
+        <div class="p-top">
+          <div class="disc" id="pDisc">♪</div>
+          <div class="p-info">
+            <small class="p-label">♪ NHẠC NỀN</small>
+            <div class="p-title" id="pTitle"><span>Tên bài hát</span></div>
+            <div class="p-artist-row"><span id="pArtist"></span><i class="eq"><b></b><b></b><b></b><b></b></i></div>
+          </div>
+          <button class="p-btn" id="pBtn" aria-label="Phát / tạm dừng nhạc">
+            <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>
+            <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+          </button>
+        </div>
+        <div class="p-bar-row"><span id="pCur">0:00</span><div class="p-bar" id="pBar"><div class="p-fill" id="pFill"></div></div><span id="pDur">0:00</span></div>
       </div>
       <a href="#games" class="scroll-hint" aria-label="Cuộn xuống xem game"><span>Cuộn xuống</span><i></i></a>
     </section>
@@ -54,6 +88,11 @@
       <button class="copy" id="copyBtn">Sao chép ID</button>
     </div>
   </div>
+  <button class="mini" id="miniPlay" aria-label="Bật / tắt nhạc">
+    <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>
+    <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+  </button>
+  <nav class="dots" id="dots" aria-label="Chuyển trang"></nav>
   <div class="toast" id="toast"></div>
 
   <script src="config.js"></script>
